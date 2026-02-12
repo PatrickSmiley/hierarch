@@ -2,55 +2,29 @@
 
 ## What This Is
 
-Hierarch plays StarCraft II Protoss voice lines on Claude Code lifecycle events (hooks). Built on the [hooks system](https://code.claude.com/docs/en/hooks) created by Boris Cherny ([@bcherny](https://github.com/bcherny)), the creator of Claude Code.
+StarCraft II Protoss voice lines as Claude Code hook notifications. Bash scripts + HTML preview, no framework. Built on the [hooks system](https://code.claude.com/docs/en/hooks) created by Boris Cherny ([@bcherny](https://github.com/bcherny)), the creator of Claude Code.
 
-## Quick Start (Run This for the User)
+## Architecture
+- **install.sh** — Interactive installer. Handles everything: mode, playback, hook scope. Just run `bash install.sh` and it prompts the user.
+- **scripts/play-sc2.sh** — Reads mode from `~/.claude/sc2-mode`, picks random sound, plays via mpv
+- **scripts/sc2-toggle.sh** — Switches between `probe` and `all` modes, volume control
+- **scripts/download-sounds.sh** — Fetches .ogg from StarCraft Wiki, converts to .mp3 (only used if user picks local playback)
+- **preview.html** — Browser-based sound audition (streams .ogg from wiki URLs)
+- **assets/logo.svg** — Project logo
+- **sounds/{mode}/{event}.txt** — URL manifests for streaming mode (one URL per line)
 
-### 1. Check Prerequisites
+## Install
 
-```bash
-command -v mpv && echo "mpv installed" || echo "MISSING: mpv"
-```
-
-If missing:
-- **Linux/WSL:** `sudo apt install mpv`
-- **macOS:** `brew install mpv`
-
-For local playback mode, also need `ffmpeg` and `curl`.
-
-Do NOT run sudo yourself. The user must run it.
-
-### 2. Run the Installer
+The only prerequisite is `mpv`. Check it, then run the installer — it handles everything interactively:
 
 ```bash
+command -v mpv && echo "mpv installed" || echo "MISSING: sudo apt install mpv"
 bash install.sh
 ```
 
-The installer prompts for three choices:
+Do NOT run sudo yourself. The user must run it.
 
-**Sound mode:**
-1. **All units** (default) — full SC2 multiplayer roster, 9 units, 80 voice lines
-2. **Probe only** — subtle chirps, non-distracting
-
-**Playback:**
-1. **Stream** (default) — plays .ogg directly from StarCraft Wiki URLs. No downloads needed.
-2. **Local** — downloads ~80 sounds, converts to .mp3 via ffmpeg. Works offline.
-
-**Hook scope** (per Claude Code docs on [hook locations](https://code.claude.com/docs/en/hooks#hook-locations)):
-1. **Global** (default) — `~/.claude/settings.json` — sounds in every session
-2. **Project** — `.claude/settings.json` — sounds only in this project (committable)
-3. **Project-local** — `.claude/settings.local.json` — same but gitignored
-
-**Auto-detection:** The player checks for local mp3 files first. If found, plays locally. If not, streams from web. No config file needed — just install and go.
-
-### 3. Verify
-
-```bash
-cat ~/.claude/sc2-mode                # "probe" or "all"
-grep play-sc2 ~/.claude/settings.json # hook entries (or check project settings)
-```
-
-Tell the user to restart Claude Code.
+Tell the user to restart Claude Code after install.
 
 ## How It Works
 
@@ -65,26 +39,12 @@ All hooks use `"async": true` so sounds never block Claude.
 
 The player reads `~/.claude/sc2-hierarch-path` to find URL manifests. If you move the repo, re-run `bash install.sh`.
 
-## Modes
+## Sound Curation Rules
 
-| Mode | What It Does |
-|------|-------------|
-| `probe` | Probe chirps only. Subtle beeps and boops. |
-| `all` | Full SC2 multiplayer roster. 9 units, 80 voice lines. |
+- **SC2 multiplayer Protoss units ONLY** — No SC1, campaign, or co-op units
+- **Current roster:** Probe, Zealot, Stalker, Dark Templar, Adept, Immortal, Carrier, Void Ray, Oracle
 
-Switch: `~/.claude/sc2-toggle.sh [probe|all]`
-
-## Sound Manifests (Stream Mode)
-
-URL manifests at `sounds/{mode}/{event}.txt` — one URL per line, pointing to .ogg files on StarCraft Wiki. To add or change sounds, edit these files.
-
-## Units (SC2 Multiplayer Only)
-
-Probe, Zealot, Stalker, Dark Templar, Adept, Immortal, Carrier, Void Ray, Oracle.
-
-No SC1, campaign, or co-op units.
-
-## Hook Event Mapping
+### Hook Event Mapping
 
 | Event | Folder | Theme |
 |-------|--------|-------|
@@ -92,6 +52,21 @@ No SC1, campaign, or co-op units.
 | `UserPromptSubmit` | `prompt` | Acknowledging orders, ready |
 | `Stop` | `done` | Task complete, awaiting command |
 | `PreCompact` | `compact` | Danger, distress, memory loss |
+
+## Two Modes
+
+| Mode | What It Does |
+|------|-------------|
+| `probe` | Probe chirps only. Subtle beeps and boops. |
+| `all` | All Protoss sounds. 9 units, 80 voice lines. |
+
+Switch: `~/.claude/sc2-toggle.sh [probe|all]`
+
+## Key Constraints
+- Audio is streamed by default. No files downloaded unless user picks local playback.
+- All audio is Blizzard IP — repo contains scripts only, no audio committed
+- No Node.js, no build step, no dependencies beyond mpv
+- Hooks use `async: true` so sounds never block Claude
 
 ## Uninstall
 
@@ -110,5 +85,5 @@ Then remove hook entries from settings (search for "play-sc2").
 | "No such file" errors | Re-run `bash install.sh` (repo path changed) |
 | Wrong mode | Check: `cat ~/.claude/sc2-mode` |
 | Hooks not firing | Check settings for "play-sc2" entries |
-| Sound too loud/quiet | Edit volume in `~/.claude/play-sc2.sh` (default: 70) |
-| Stream fails | Check internet; or switch to local: reinstall with option 2 |
+| Adjust volume | `~/.claude/sc2-toggle.sh volume [0-100]` (default: 50) |
+| Stream fails | Check internet; or reinstall with local playback option |

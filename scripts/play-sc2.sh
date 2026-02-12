@@ -52,5 +52,5 @@ if [ ${#URLS[@]} -eq 0 ]; then exit 0; fi
 # Pick a random URL and validate domain before playing
 URL="${URLS[$RANDOM % ${#URLS[@]}]}"
 if [[ "$URL" == https://"$ALLOWED_DOMAIN"/* ]]; then
-  mpv --no-video --really-quiet --volume=$VOLUME -- "$URL" &
+  mpv --no-video --really-quiet --volume="$VOLUME" -- "$URL" &
 fi

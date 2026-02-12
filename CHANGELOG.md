@@ -21,43 +21,54 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 ---
 
+### [1.3.0] - 2026-02-12
+
+#### Changed
+- Moved `play-sc2.sh`, `sc2-toggle.sh`, `download-sounds.sh` into `scripts/`
+- Moved `logo.svg` into `assets/`
+- Updated `install.sh` path references for new structure
+- Clean repo root: only entry points (`install.sh`, `preview.html`) and docs remain
+
+---
+
 ### [1.2.2] - 2026-02-12
 
 #### Fixed
-- Quoted `$VOLUME` in mpv arguments
-- Added `--` separator before mpv file/URL arguments
+- Quoted `$VOLUME` in mpv `--volume` argument
+- Added `--` separator before mpv file/URL arguments to prevent option injection
 
 ---
 
 ### [1.2.1] - 2026-02-12
 
 #### Added
-- URL domain validation for streaming
-- Input validation for mode and volume
+- Mode whitelist validation in player script (`probe`/`all` only)
+- Volume range validation in player and toggle scripts (integer, 0-100)
+- URL domain validation — streaming only allows `static.wikia.nocookie.net`
 
 #### Changed
 - `install.sh` Python hook injection uses `sys.argv` instead of shell string interpolation
 - Script permissions tightened from 755 to 744
-- Expanded `.gitignore`
+- Expanded `.gitignore` to cover `.env`, downloaded sounds, user config files, keys, backups
 
 ---
 
 ### [1.2.0] - 2026-02-12
 
 #### Added
-- Volume config file (`~/.claude/sc2-volume`)
+- Volume config file (`~/.claude/sc2-volume`) — adjust volume without editing scripts
 - Volume commands via toggle script: `sc2-toggle.sh volume [0-100]`
 
 #### Changed
 - Default playback volume lowered from 70% to 50%
-- Player script reads volume from config file instead of hardcoded value
+- Player script reads volume from `~/.claude/sc2-volume` instead of hardcoded value
 
 ---
 
 ### [1.1.1] - 2026-02-09
 
 #### Added
-- Mode selection prompt in installer (probe vs all)
+- Mode selection prompt in installer (choose all units or probe-only at install time)
 
 ---
 
@@ -65,28 +76,26 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 #### Added
 - Streaming playback: sounds play directly from StarCraft Wiki URLs, no downloads required
-- Interactive installer: playback method and hook scope prompts
+- Interactive installer with prompts for playback method and hook scope
 - Project-scoped hook support (global, project, project-local)
 - Auto-detection: plays local mp3s if present, otherwise streams from web
 - `.claude/CLAUDE.md` project instructions for Claude Code
-- URL manifest files for streaming mode (`sounds/{mode}/{event}.txt`)
 
 #### Changed
 - Default playback is now streaming (was download-only)
 - Installer handles all configuration interactively
 
+#### Removed
+- ROADMAP.md (unnecessary for a utility project)
+
 ---
 
-### [1.0.1] - 2026-02-09
+### [1.0.1] - 2026-02-08
 
 #### Added
 - SVG pylon logo
-- Full credits: Boris Cherny, rubenflamshepherd, Delba Oliveira, StarCraft Wiki
+- Credits section: Boris Cherny (Claude Code creator), rubenflamshepherd (starcraft-claude), Delba Oliveira, StarCraft Wiki
 - Expanded legal section with Blizzard/Activision/Microsoft IP notice
-- Fandom and Blizzard EULA links
-
-#### Removed
-- ROADMAP.md
 
 ---
 
@@ -95,8 +104,8 @@ This changelog tracks **hook configuration and sound curation changes**:
 #### Added
 - Initial release
 - 80 curated SC2 Protoss sounds across 4 hook events
-- Two modes: `probe` (chirps only) and `all` (full SC2 multiplayer roster)
-- Download script: fetches .ogg from StarCraft wiki, converts to .mp3 via ffmpeg
+- Two modes: `probe` (chirps only) and `all` (full Protoss roster)
+- Download script: fetches .ogg from StarCraft Wiki, converts to .mp3 via ffmpeg
 - Player script: picks random sound from active mode, plays via mpv
 - Toggle script: switch between probe and all modes
 - Install script: sets up directories, downloads sounds, configures Claude Code hooks

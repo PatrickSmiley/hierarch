@@ -114,8 +114,8 @@ echo ""
 echo "[1/4] Installing scripts..."
 mkdir -p "$CLAUDE_DIR"
 
-cp "$SCRIPT_DIR/play-sc2.sh" "$CLAUDE_DIR/play-sc2.sh"
-cp "$SCRIPT_DIR/sc2-toggle.sh" "$CLAUDE_DIR/sc2-toggle.sh"
+cp "$SCRIPT_DIR/scripts/play-sc2.sh" "$CLAUDE_DIR/play-sc2.sh"
+cp "$SCRIPT_DIR/scripts/sc2-toggle.sh" "$CLAUDE_DIR/sc2-toggle.sh"
 chmod +x "$CLAUDE_DIR/play-sc2.sh" "$CLAUDE_DIR/sc2-toggle.sh"
 
 # Save repo path (for streaming fallback)
@@ -128,7 +128,7 @@ echo "$SC2_MODE" > "$CLAUDE_DIR/sc2-mode"
 echo ""
 if [ "$DOWNLOAD_LOCAL" = true ]; then
   echo "[2/4] Downloading and converting sounds..."
-  bash "$SCRIPT_DIR/download-sounds.sh"
+  bash "$SCRIPT_DIR/scripts/download-sounds.sh"
 else
   echo "[2/4] Skipping download (streaming mode)"
   echo "  Sounds will stream from StarCraft Wiki when played."

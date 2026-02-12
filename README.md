@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.svg" alt="Hierarch" width="160" />
+  <img src="assets/logo.svg" alt="Hierarch" width="160" />
 </p>
 
 <h1 align="center">Hierarch</h1>
@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.2-00aaff" alt="version" />
+  <img src="https://img.shields.io/badge/version-1.3.0-00aaff" alt="version" />
   <img src="https://img.shields.io/badge/race-protoss-00ccff" alt="protoss" />
   <img src="https://img.shields.io/badge/units-9-44ddff" alt="units" />
   <img src="https://img.shields.io/badge/sounds-80-88eeff" alt="sounds" />
@@ -114,20 +114,24 @@ Open `preview.html` in a browser to audition every sound organized by hook event
 
 ```
 hierarch/                    # Keep this repo cloned
+├── assets/
+│   └── logo.svg             # Project logo
+├── scripts/
+│   ├── play-sc2.sh          # Player script (copied to ~/.claude/)
+│   ├── sc2-toggle.sh        # Mode toggle (copied to ~/.claude/)
+│   └── download-sounds.sh   # Sound downloader (local playback only)
 ├── sounds/
 │   ├── probe/*.txt          # URL manifests for probe mode (streaming)
 │   └── all/*.txt            # URL manifests for all-units mode (streaming)
-├── play-sc2.sh              # Player script (copied to ~/.claude/)
-├── sc2-toggle.sh            # Mode toggle (copied to ~/.claude/)
-├── download-sounds.sh       # Sound downloader (local playback only)
 ├── install.sh               # Interactive installer
 └── preview.html             # Sound audition page
 
 ~/.claude/
 ├── settings.json            # Hook config (or .claude/settings.json for project scope)
 ├── play-sc2.sh              # Auto-detects local mp3s, falls back to streaming
-├── sc2-toggle.sh            # Switches between probe/all
+├── sc2-toggle.sh            # Switches between probe/all + volume control
 ├── sc2-mode                 # Current mode ("probe" or "all")
+├── sc2-volume               # Current volume level (0-100, default: 50)
 ├── sc2-hierarch-path        # Points to your cloned repo (for streaming)
 └── sounds/                  # Local mp3 files (only if downloaded)
 ```
