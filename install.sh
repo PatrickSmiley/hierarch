@@ -1,59 +1,137 @@
 #!/bin/bash
-# SC2 Protoss Sound Hooks - Installer for Claude Code
-# Downloads sounds, installs scripts, configures hooks
+# Hierarch - SC2 Protoss Sound Hooks for Claude Code
+# Interactive installer
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
-SETTINGS="$CLAUDE_DIR/settings.json"
 
-echo "=== SC2 Protoss Sound Hooks - Installer ==="
+echo ""
+echo "  ⬡  Hierarch - SC2 Protoss Sound Hooks"
+echo "     You must construct additional prompts."
 echo ""
 
 # Check prerequisites
-for cmd in ffmpeg mpv curl; do
-  if ! command -v "$cmd" &>/dev/null; then
-    echo "ERROR: $cmd is required but not installed."
-    echo "  Linux/WSL: sudo apt install $cmd"
-    echo "  macOS:     brew install $cmd"
-    exit 1
-  fi
-done
+if ! command -v mpv &>/dev/null; then
+  echo "ERROR: mpv is required but not installed."
+  echo "  Linux/WSL: sudo apt install mpv"
+  echo "  macOS:     brew install mpv"
+  exit 1
+fi
 
-echo "[1/4] Downloading and converting sounds..."
-bash "$SCRIPT_DIR/download-sounds.sh"
+# Sound mode (all units by default)
+SC2_MODE="all"
+
+# --- Prompt 2: Playback ---
+echo "How should sounds play?"
+echo ""
+echo "  [1] Stream from web (default)"
+echo "      No downloads. Requires internet while using Claude."
+echo ""
+echo "  [2] Download locally"
+echo "      Downloads ~80 sounds. Works offline. Requires ffmpeg + curl."
+echo ""
+read -p "Choose [1/2]: " PLAYBACK_CHOICE
+PLAYBACK_CHOICE="${PLAYBACK_CHOICE:-1}"
+
+if [ "$PLAYBACK_CHOICE" = "2" ]; then
+  DOWNLOAD_LOCAL=true
+  for cmd in ffmpeg curl; do
+    if ! command -v "$cmd" &>/dev/null; then
+      echo "ERROR: $cmd is required for local playback."
+      echo "  Linux/WSL: sudo apt install $cmd"
+      echo "  macOS:     brew install $cmd"
+      exit 1
+    fi
+  done
+else
+  DOWNLOAD_LOCAL=false
+fi
 
 echo ""
-echo "[2/4] Installing scripts..."
+
+# --- Prompt 3: Hook scope ---
+echo "Where should hooks be installed?"
+echo ""
+echo "  [1] Global (default)"
+echo "      Sounds play in every Claude Code session."
+echo "      Writes to: ~/.claude/settings.json"
+echo ""
+echo "  [2] This project only"
+echo "      Sounds only play when working in this directory."
+echo "      Writes to: .claude/settings.json (committable)"
+echo ""
+echo "  [3] This project only (private)"
+echo "      Same as above but gitignored."
+echo "      Writes to: .claude/settings.local.json"
+echo ""
+read -p "Choose [1/2/3]: " SCOPE_CHOICE
+SCOPE_CHOICE="${SCOPE_CHOICE:-1}"
+
+case "$SCOPE_CHOICE" in
+  2)
+    SETTINGS="$(pwd)/.claude/settings.json"
+    mkdir -p "$(pwd)/.claude"
+    SCOPE_DESC="project (.claude/settings.json)"
+    ;;
+  3)
+    SETTINGS="$(pwd)/.claude/settings.local.json"
+    mkdir -p "$(pwd)/.claude"
+    SCOPE_DESC="project-local (.claude/settings.local.json)"
+    ;;
+  *)
+    SETTINGS="$CLAUDE_DIR/settings.json"
+    SCOPE_DESC="global (~/.claude/settings.json)"
+    ;;
+esac
+
+echo ""
+echo "=== Installing ==="
+echo "  Mode: $SC2_MODE"
+echo "  Playback: $([ "$DOWNLOAD_LOCAL" = true ] && echo "local" || echo "stream")"
+echo "  Hooks: $SCOPE_DESC"
+echo ""
+
+# --- Step 1: Install scripts ---
+echo "[1/4] Installing scripts..."
+mkdir -p "$CLAUDE_DIR"
+
 cp "$SCRIPT_DIR/play-sc2.sh" "$CLAUDE_DIR/play-sc2.sh"
 cp "$SCRIPT_DIR/sc2-toggle.sh" "$CLAUDE_DIR/sc2-toggle.sh"
 chmod +x "$CLAUDE_DIR/play-sc2.sh" "$CLAUDE_DIR/sc2-toggle.sh"
 
-# Set default mode
-if [ ! -f "$CLAUDE_DIR/sc2-mode" ]; then
-  echo "all" > "$CLAUDE_DIR/sc2-mode"
-  echo "  Default mode: all (full Protoss roster)"
+# Save repo path (for streaming fallback)
+echo "$SCRIPT_DIR" > "$CLAUDE_DIR/sc2-hierarch-path"
+
+# Set mode
+echo "$SC2_MODE" > "$CLAUDE_DIR/sc2-mode"
+
+# --- Step 2: Download sounds if local ---
+echo ""
+if [ "$DOWNLOAD_LOCAL" = true ]; then
+  echo "[2/4] Downloading and converting sounds..."
+  bash "$SCRIPT_DIR/download-sounds.sh"
 else
-  echo "  Keeping existing mode: $(cat "$CLAUDE_DIR/sc2-mode")"
+  echo "[2/4] Skipping download (streaming mode)"
+  echo "  Sounds will stream from StarCraft Wiki when played."
 fi
 
+# --- Step 3: Configure hooks ---
 echo ""
-echo "[3/4] Configuring Claude Code hooks..."
+echo "[3/4] Configuring hooks..."
+echo "  Target: $SCOPE_DESC"
 
 # Backup existing settings
 if [ -f "$SETTINGS" ]; then
   cp "$SETTINGS" "${SETTINGS}.backup"
-  echo "  Backed up existing settings to settings.json.backup"
+  echo "  Backed up existing settings"
 fi
 
-# Read existing settings and merge hooks
 if [ -f "$SETTINGS" ]; then
-  # Check if hooks already exist
   if grep -q "play-sc2.sh" "$SETTINGS" 2>/dev/null; then
     echo "  Hooks already configured, skipping"
   else
-    # Use python/node to merge JSON if available, otherwise warn
     if command -v python3 &>/dev/null; then
       python3 -c "
 import json
@@ -74,15 +152,15 @@ for event, config in hooks.items():
         settings['hooks'][event] = existing + config
 with open('$SETTINGS', 'w') as f:
     json.dump(settings, f, indent=2)
-print('  Hooks added to existing settings')
+print('  Hooks added')
 "
     else
-      echo "  WARNING: python3 not found. Please manually add hooks to $SETTINGS"
-      echo "  See README.md for hook configuration"
+      echo "  WARNING: python3 not found. Please manually add hooks."
+      echo "  See README.md for hook configuration."
     fi
   fi
 else
-  # No existing settings, create fresh
+  mkdir -p "$(dirname "$SETTINGS")"
   cat > "$SETTINGS" << 'SETTINGS_EOF'
 {
   "hooks": {
@@ -93,20 +171,31 @@ else
   }
 }
 SETTINGS_EOF
-  echo "  Created new settings.json with hooks"
+  echo "  Created new settings with hooks"
 fi
 
+# --- Step 4: Verify ---
 echo ""
 echo "[4/4] Verifying..."
-SOUND_COUNT=$(find "$CLAUDE_DIR/sounds" -name "*.mp3" 2>/dev/null | wc -l)
-echo "  Sounds installed: $SOUND_COUNT mp3 files"
-echo "  Player script: $CLAUDE_DIR/play-sc2.sh"
-echo "  Toggle script: $CLAUDE_DIR/sc2-toggle.sh"
-echo "  Current mode: $(cat "$CLAUDE_DIR/sc2-mode" 2>/dev/null || echo 'all')"
+echo "  Player: $CLAUDE_DIR/play-sc2.sh"
+echo "  Toggle: $CLAUDE_DIR/sc2-toggle.sh"
+echo "  Mode: $SC2_MODE"
+
+if [ "$DOWNLOAD_LOCAL" = true ]; then
+  SOUND_COUNT=$(find "$CLAUDE_DIR/sounds" -name "*.mp3" 2>/dev/null | wc -l)
+  echo "  Local sounds: $SOUND_COUNT mp3 files"
+else
+  echo "  Streaming from: StarCraft Wiki"
+fi
+
+echo "  Hooks: $SCOPE_DESC"
 
 echo ""
-echo "=== Installation complete! ==="
+echo "=== Done! ==="
 echo ""
-echo "Sounds will play automatically in Claude Code."
-echo "Toggle modes: ~/.claude/sc2-toggle.sh [probe|all]"
+echo "Restart Claude Code. You should hear a Protoss unit greet you."
+echo ""
+echo "Switch modes anytime:"
+echo "  ~/.claude/sc2-toggle.sh probe   # Probe chirps only"
+echo "  ~/.claude/sc2-toggle.sh all     # Full Protoss roster"
 echo ""

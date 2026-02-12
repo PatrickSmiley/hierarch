@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to hierarch will be documented in this file.
+All notable changes to Hierarch will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -18,6 +18,22 @@ This changelog tracks **hook configuration and sound curation changes**:
 | Compatibility | OS support, player backends |
 
 **Not tracked:** Personal preferences, session notes.
+
+---
+
+### [1.1.0] - 2026-02-09
+
+#### Added
+- Streaming playback: sounds play directly from StarCraft Wiki URLs, no downloads required
+- Interactive installer: playback method and hook scope prompts
+- Project-scoped hook support (global, project, project-local)
+- Auto-detection: plays local mp3s if present, otherwise streams from web
+- `.claude/CLAUDE.md` project instructions for Claude Code
+- URL manifest files for streaming mode (`sounds/{mode}/{event}.txt`)
+
+#### Changed
+- Default playback is now streaming (was download-only)
+- Installer handles all configuration interactively
 
 ---
 
