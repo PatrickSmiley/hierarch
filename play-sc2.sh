@@ -36,7 +36,7 @@ SOUND_DIR="$HOME/.claude/sounds/$MODE/$EVENT"
 if [ -d "$SOUND_DIR" ]; then
   FILES=("$SOUND_DIR"/*.mp3)
   if [ ${#FILES[@]} -gt 0 ] && [ -f "${FILES[0]}" ]; then
-    mpv --no-video --really-quiet --volume=$VOLUME "${FILES[$RANDOM % ${#FILES[@]}]}" &
+    mpv --no-video --really-quiet --volume="$VOLUME" -- "${FILES[$RANDOM % ${#FILES[@]}]}" &
     exit 0
   fi
 fi

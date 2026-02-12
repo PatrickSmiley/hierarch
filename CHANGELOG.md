@@ -21,6 +21,14 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 ---
 
+### [1.2.2] - 2026-02-12
+
+#### Fixed
+- Quoted `$VOLUME` in mpv arguments
+- Added `--` separator before mpv file/URL arguments
+
+---
+
 ### [1.2.1] - 2026-02-12
 
 #### Added
