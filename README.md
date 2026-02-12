@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.1.1-00aaff" alt="version" />
+  <img src="https://img.shields.io/badge/version-1.2.0-00aaff" alt="version" />
   <img src="https://img.shields.io/badge/race-protoss-00ccff" alt="protoss" />
   <img src="https://img.shields.io/badge/units-9-44ddff" alt="units" />
   <img src="https://img.shields.io/badge/sounds-80-88eeff" alt="sounds" />
@@ -95,6 +95,16 @@ Restart Claude Code. You should hear a Protoss unit greet you.
 ~/.claude/sc2-toggle.sh all     # Full Protoss roster
 ~/.claude/sc2-toggle.sh         # Toggle between them
 ```
+
+### Adjust Volume
+
+```bash
+~/.claude/sc2-toggle.sh volume 50    # Set to 50%
+~/.claude/sc2-toggle.sh volume 30    # Quieter
+~/.claude/sc2-toggle.sh volume       # Show current volume
+```
+
+Volume is stored in `~/.claude/sc2-volume` (default: 50%). Range: 0-100.
 
 ## Preview Sounds
 

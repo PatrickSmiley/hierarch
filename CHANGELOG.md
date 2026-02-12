@@ -21,6 +21,18 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 ---
 
+### [1.2.0] - 2026-02-12
+
+#### Added
+- Volume config file (`~/.claude/sc2-volume`)
+- Volume commands via toggle script: `sc2-toggle.sh volume [0-100]`
+
+#### Changed
+- Default playback volume lowered from 70% to 50%
+- Player script reads volume from config file instead of hardcoded value
+
+---
+
 ### [1.1.1] - 2026-02-09
 
 #### Added
