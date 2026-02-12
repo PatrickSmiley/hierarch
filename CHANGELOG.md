@@ -21,6 +21,13 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 ---
 
+### [1.1.1] - 2026-02-09
+
+#### Added
+- Mode selection prompt in installer (probe vs all)
+
+---
+
 ### [1.1.0] - 2026-02-09
 
 #### Added

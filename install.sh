@@ -20,8 +20,25 @@ if ! command -v mpv &>/dev/null; then
   exit 1
 fi
 
-# Sound mode (all units by default)
-SC2_MODE="all"
+# --- Prompt 1: Sound mode ---
+echo "Which sound mode?"
+echo ""
+echo "  [1] All units (default)"
+echo "      Full SC2 multiplayer Protoss roster. 9 units, 80 voice lines."
+echo ""
+echo "  [2] Probe only"
+echo "      Just Probe chirps. Subtle, non-distracting beeps and boops."
+echo ""
+read -p "Choose [1/2]: " MODE_CHOICE
+MODE_CHOICE="${MODE_CHOICE:-1}"
+
+if [ "$MODE_CHOICE" = "2" ]; then
+  SC2_MODE="probe"
+else
+  SC2_MODE="all"
+fi
+
+echo ""
 
 # --- Prompt 2: Playback ---
 echo "How should sounds play?"
