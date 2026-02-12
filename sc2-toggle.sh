@@ -10,7 +10,15 @@ VOL_FILE="$HOME/.claude/sc2-volume"
 if [ "$1" = "volume" ]; then
   CURRENT_VOL=$(cat "$VOL_FILE" 2>/dev/null || echo "50")
   if [ -n "$2" ]; then
+    # Validate as integer
+    if ! [ "$2" -eq "$2" ] 2>/dev/null; then
+      echo "Error: volume must be a number (0-100)"
+      exit 1
+    fi
+    # Clamp to 0-100
     NEW_VOL="$2"
+    if [ "$NEW_VOL" -lt 0 ]; then NEW_VOL=0; fi
+    if [ "$NEW_VOL" -gt 100 ]; then NEW_VOL=100; fi
     echo "$NEW_VOL" > "$VOL_FILE"
     echo "SC2 volume: ${NEW_VOL}% (was: ${CURRENT_VOL}%)"
   else
@@ -19,11 +27,14 @@ if [ "$1" = "volume" ]; then
   exit 0
 fi
 
+# Mode toggle — validate against whitelist
 CURRENT=$(cat "$MODE_FILE" 2>/dev/null || echo "all")
 
 if [ -n "$1" ]; then
-  # Set specific mode
-  NEW="$1"
+  case "$1" in
+    probe|all) NEW="$1" ;;
+    *) echo "Error: mode must be 'probe' or 'all'"; exit 1 ;;
+  esac
 else
   # Toggle
   if [ "$CURRENT" = "all" ]; then

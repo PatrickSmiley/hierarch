@@ -1,3 +1,29 @@
 node_modules/
 .DS_Store
+
+# User config files (created by installer)
 .claude/PRIVATE.md
+.claude/settings.json
+.claude/settings.local.json
+.claude/sc2-mode
+.claude/sc2-volume
+.claude/sc2-hierarch-path
+.claude/sc2-playback
+.claude/context/
+
+# Downloaded sounds (local playback mode)
+*.mp3
+*.ogg
+
+# Installer backups
+*.backup
+
+# Secrets / keys
+.env
+.env.*
+*.key
+*.pem
+*.p12
+
+# Logs
+*.log

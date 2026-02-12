@@ -8,20 +8,28 @@ EVENT="$1"
 MODE_FILE="$HOME/.claude/sc2-mode"
 PATH_FILE="$HOME/.claude/sc2-hierarch-path"
 VOL_FILE="$HOME/.claude/sc2-volume"
+ALLOWED_DOMAIN="static.wikia.nocookie.net"
 
-# Read mode (default: all)
+# Read mode (default: all) — validate against whitelist
 if [ -f "$MODE_FILE" ]; then
   MODE=$(cat "$MODE_FILE")
 else
   MODE="all"
 fi
+case "$MODE" in
+  probe|all) ;;
+  *) MODE="all" ;;
+esac
 
-# Read volume (default: 50)
+# Read volume (default: 50, range: 0-100) — validate as integer
 if [ -f "$VOL_FILE" ]; then
   VOLUME=$(cat "$VOL_FILE")
 else
   VOLUME=50
 fi
+if ! [ "$VOLUME" -eq "$VOLUME" ] 2>/dev/null; then VOLUME=50; fi
+if [ "$VOLUME" -lt 0 ]; then VOLUME=0; fi
+if [ "$VOLUME" -gt 100 ]; then VOLUME=100; fi
 
 # Check for local mp3s first
 SOUND_DIR="$HOME/.claude/sounds/$MODE/$EVENT"
@@ -40,4 +48,9 @@ MANIFEST="$REPO_DIR/sounds/$MODE/$EVENT.txt"
 if [ ! -f "$MANIFEST" ]; then exit 0; fi
 mapfile -t URLS < "$MANIFEST"
 if [ ${#URLS[@]} -eq 0 ]; then exit 0; fi
-mpv --no-video --really-quiet --volume=$VOLUME "${URLS[$RANDOM % ${#URLS[@]}]}" &
+
+# Pick a random URL and validate domain before playing
+URL="${URLS[$RANDOM % ${#URLS[@]}]}"
+if [[ "$URL" == https://"$ALLOWED_DOMAIN"/* ]]; then
+  mpv --no-video --really-quiet --volume=$VOLUME -- "$URL" &
+fi

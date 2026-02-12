@@ -21,6 +21,19 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 ---
 
+### [1.2.1] - 2026-02-12
+
+#### Added
+- URL domain validation for streaming
+- Input validation for mode and volume
+
+#### Changed
+- `install.sh` Python hook injection uses `sys.argv` instead of shell string interpolation
+- Script permissions tightened from 755 to 744
+- Expanded `.gitignore`
+
+---
+
 ### [1.2.0] - 2026-02-12
 
 #### Added

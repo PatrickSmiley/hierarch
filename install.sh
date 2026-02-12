@@ -150,9 +150,10 @@ if [ -f "$SETTINGS" ]; then
     echo "  Hooks already configured, skipping"
   else
     if command -v python3 &>/dev/null; then
-      python3 -c "
-import json
-with open('$SETTINGS') as f:
+      python3 - "$SETTINGS" <<'PYEOF'
+import json, sys
+settings_path = sys.argv[1]
+with open(settings_path) as f:
     settings = json.load(f)
 hooks = {
     'SessionStart': [{'hooks': [{'type': 'command', 'command': 'bash ~/.claude/play-sc2.sh start', 'async': True}]}],
@@ -167,10 +168,10 @@ for event, config in hooks.items():
     has_sc2 = any('play-sc2' in str(e) for e in existing)
     if not has_sc2:
         settings['hooks'][event] = existing + config
-with open('$SETTINGS', 'w') as f:
+with open(settings_path, 'w') as f:
     json.dump(settings, f, indent=2)
 print('  Hooks added')
-"
+PYEOF
     else
       echo "  WARNING: python3 not found. Please manually add hooks."
       echo "  See README.md for hook configuration."
