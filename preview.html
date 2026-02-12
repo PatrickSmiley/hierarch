@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SC2 Protoss Sound Preview - Multiplayer Units Only</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a14; color: #c4b998; font-family: 'Segoe UI', sans-serif; padding: 24px; }
+  h1 { color: #00bfff; font-size: 28px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+  .subtitle { color: #667; font-size: 14px; margin-bottom: 16px; }
+  .controls { display: flex; gap: 12px; margin-bottom: 24px; }
+  .btn { background: #1a2a3a; color: #00bfff; border: 1px solid #00bfff; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.15s; }
+  .btn:hover { background: #00bfff; color: #0a0a14; }
+  .btn.active { background: #00bfff; color: #0a0a14; font-weight: bold; }
+  .hook-section { margin-bottom: 40px; }
+  .hook-title { color: #00bfff; font-size: 20px; border-bottom: 1px solid #1a2a3a; padding-bottom: 8px; margin-bottom: 4px; }
+  .hook-desc { color: #556; font-size: 13px; margin-bottom: 16px; font-style: italic; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .card {
+    background: #111622; border: 1px solid #1a2a3a; border-radius: 8px; padding: 14px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .card:hover { border-color: #00bfff; background: #151d2e; }
+  .card.playing { border-color: #00ff88; box-shadow: 0 0 12px rgba(0,255,136,0.2); }
+  .card.error { border-color: #ff4444; }
+  .card.probe-only { border-left: 3px solid #ffaa00; }
+  .quote { font-size: 15px; color: #e0d8c8; font-style: italic; margin-bottom: 6px; }
+  .unit { font-size: 12px; color: #00bfff; text-transform: uppercase; letter-spacing: 1px; }
+  .badge { font-size: 10px; color: #ffaa00; margin-left: 8px; }
+  .status { font-size: 11px; color: #00ff88; margin-top: 4px; min-height: 16px; }
+  .note { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 6px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: #889; line-height: 1.6; }
+  .note strong { color: #ffaa00; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>SC2 Protoss Sounds for Claude Code</h1>
+<p class="subtitle">Click any card to play. Gold border = included in Probe-Only mode.</p>
+
+<div class="controls">
+  <button class="btn active" id="btn-all" onclick="setMode('all')">All SC2 Units</button>
+  <button class="btn" id="btn-probe" onclick="setMode('probe')">Probe Only</button>
+</div>
+
+<div class="note">
+  <strong>Note:</strong> Audio streams from the StarCraft wiki. If CORS blocks playback, we'll need the local proxy setup.
+</div>
+
+<div id="app"></div>
+
+<script>
+const data = {
+  "hooks": [
+    {
+      "name": "SessionStart",
+      "theme": "Waking up, coming online, greeting",
+      "recommendations": [
+        {"text":"(Probe chirp - Trained)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/3/35/Probe_Ready0.ogg/revision/latest?cb=20211026192405"},
+        {"text":"(Probe chirp - Trained 2)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/8/85/Probe_Ready1.ogg/revision/latest?cb=20211026192406"},
+        {"text":"Carrier has arrived!","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/3/32/Carrier_Ready00.ogg/revision/latest?cb=20211013142125"},
+        {"text":"My life for Aiur!","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/0/08/Zealot_Ready00.ogg/revision/latest?cb=20211026183404"},
+        {"text":"I return to serve.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/8/84/Immortal_Ready00.ogg/revision/latest?cb=20211021130855"},
+        {"text":"Prismatic core online.","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/bf/VoidRay_Ready00.ogg/revision/latest?cb=20211022182637"},
+        {"text":"I am here in the shadows.","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/c3/Stalker_Ready00.ogg/revision/latest?cb=20211021141905"},
+        {"text":"From the shadows I come!","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/6/62/DarkTemplar_Ready00.ogg/revision/latest?cb=20211013145624"},
+        {"text":"Oracle perceiving.","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/f/fa/ZVO_ProtossOracle_ProtossFlyingCaster_006.ogg/revision/latest?cb=20211021144720"},
+        {"text":"Dimensional strings attuned.","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/c3/ZVO_ProtossOracle_ProtossFlyingCaster_005.ogg/revision/latest?cb=20211021144717"},
+        {"text":"I heed the call.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/d/d7/Immortal_What00.ogg/revision/latest?cb=20211021130857"},
+        {"text":"You seek guidance?","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/7/7e/ZVO_ProtossOracle_ProtossFlyingCaster_007.ogg/revision/latest?cb=20211021144722"},
+        {"text":"How can I aid you?","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/a/ab/ZVO_ProtossOracle_ProtossFlyingCaster_008.ogg/revision/latest?cb=20211021144724"},
+        {"text":"You require my skills?","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/a/af/Stalker_What02.ogg/revision/latest?cb=20211021141912"},
+        {"text":"You seek our service?","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/7/7c/DarkTemplar_What04.ogg/revision/latest?cb=20211013145629"}
+      ]
+    },
+    {
+      "name": "UserPromptSubmit",
+      "theme": "Acknowledged, yes sir, on it, taking orders",
+      "recommendations": [
+        {"text":"(Probe chirp - Selected)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/a/ae/Probe_What0.ogg/revision/latest?cb=20211026192407"},
+        {"text":"(Probe chirp - Selected 2)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/4/4a/Probe_What1.ogg/revision/latest?cb=20211026192408"},
+        {"text":"(Probe chirp - Confirm)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/ce/Probe_Yes0.ogg/revision/latest?cb=20211026192409"},
+        {"text":"(Probe chirp - Confirm 2)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/ce/Probe_Yes1.ogg/revision/latest?cb=20211026192410"},
+        {"text":"It shall be done.","unit":"Adept","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/5/58/Adept_Yes01.ogg/revision/latest?cb=20211012014820"},
+        {"text":"It shall be as you say.","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/b9/Stalker_Yes01.ogg/revision/latest?cb=20211021141920"},
+        {"text":"Very well.","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/d/d9/Stalker_Yes00.ogg/revision/latest?cb=20211021141919"},
+        {"text":"I will comply.","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/a/a4/DarkTemplar_Yes00.ogg/revision/latest?cb=20211013145634"},
+        {"text":"By the Void.","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/4/4b/DarkTemplar_Yes01.ogg/revision/latest?cb=20211013145635"},
+        {"text":"Clever.","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/9/9d/DarkTemplar_Yes02.ogg/revision/latest?cb=20211013145636"},
+        {"text":"By your will!","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/3/38/Zealot_Yes02.ogg/revision/latest?cb=20211026183413"},
+        {"text":"Honor guide me!","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/6/64/Zealot_Yes00.ogg/revision/latest?cb=20211026183411"},
+        {"text":"For Artanis!","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/0/05/Zealot_Yes05.ogg/revision/latest?cb=20211026183415"},
+        {"text":"It is destined.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/8/80/Immortal_Yes00.ogg/revision/latest?cb=20211021130907"},
+        {"text":"We march to victory.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/7/73/Immortal_Yes05.ogg/revision/latest?cb=20211021130913"},
+        {"text":"It shall be done.","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/d/d9/VoidRay_Yes01.ogg/revision/latest?cb=20211022182645"},
+        {"text":"Calibrating void lenses.","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/c8/VoidRay_Yes00.ogg/revision/latest?cb=20211022182644"},
+        {"text":"Let us begin.","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/8/81/ZVO_ProtossOracle_ProtossFlyingCaster_010.ogg/revision/latest?cb=20211021144727"},
+        {"text":"I see.","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/4/4a/ZVO_ProtossOracle_ProtossFlyingCaster_014.ogg/revision/latest?cb=20211021144732"},
+        {"text":"Let us proceed.","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/1/1a/Carrier_What01.ogg/revision/latest?cb=20211013142127"},
+        {"text":"Agreed.","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/bd/Carrier_Yes04.ogg/revision/latest?cb=20211013142139"},
+        {"text":"To victory!","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/f/f1/Carrier_Yes02.ogg/revision/latest?cb=20211013142136"},
+        {"text":"Intriguing...","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/2/27/Stalker_Yes02.ogg/revision/latest?cb=20211021141922"},
+        {"text":"State thy bidding.","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/a/ae/Stalker_What04.ogg/revision/latest?cb=20211021141916"},
+        {"text":"What would you ask of us?","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/9/93/DarkTemplar_What06.ogg/revision/latest?cb=20211013145632"},
+        {"text":"We are ready.","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/4/46/Carrier_What05.ogg/revision/latest?cb=20211013142132"}
+      ]
+    },
+    {
+      "name": "Stop (Task Done)",
+      "theme": "Done, task complete, idle, waiting for you",
+      "recommendations": [
+        {"text":"(Probe chirp - Selected 3)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/c5/Probe_What2.ogg/revision/latest?cb=20211026192408"},
+        {"text":"(Probe chirp - Confirm 3)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/5/59/Probe_Yes2.ogg/revision/latest?cb=20211026192411"},
+        {"text":"(Probe chirp - Confirm 4)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/8/83/Probe_Yes3.ogg/revision/latest?cb=20211026192412"},
+        {"text":"The battle is won.","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/0/0b/Carrier_Yes07.ogg/revision/latest?cb=20211013142143"},
+        {"text":"Awaiting the call.","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/5/5a/Carrier_What03.ogg/revision/latest?cb=20211013142130"},
+        {"text":"Victory awaits!","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/c6/Carrier_What00.ogg/revision/latest?cb=20211013142126"},
+        {"text":"Phase crystals charged.","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/7/78/VoidRay_What00.ogg/revision/latest?cb=20211022182639"},
+        {"text":"Systems at full.","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/f/f9/VoidRay_Yes06.ogg/revision/latest?cb=20211022182651"},
+        {"text":"We are at full power.","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/e/e3/VoidRay_What03.ogg/revision/latest?cb=20211022182642"},
+        {"text":"Our duty is unending.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/0/02/Immortal_What04.ogg/revision/latest?cb=20211021130902"},
+        {"text":"Glory is eternal.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/bc/Immortal_What03.ogg/revision/latest?cb=20211021130901"},
+        {"text":"Command me.","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/7/73/Zealot_What02.ogg/revision/latest?cb=20211026183407"},
+        {"text":"My meditation is over.","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/b4/Zealot_What00.ogg/revision/latest?cb=20211026183405"},
+        {"text":"The threads of fate lie bare.","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/b4/ZVO_ProtossOracle_ProtossFlyingCaster_009.ogg/revision/latest?cb=20211021144725"},
+        {"text":"I bask in the twilight.","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/c/c8/DarkTemplar_What00.ogg/revision/latest?cb=20211013145625"}
+      ]
+    },
+    {
+      "name": "PreCompact (Memory Wipe)",
+      "theme": "Losing memory, context shrinking, resetting",
+      "recommendations": [
+        {"text":"(Probe death sound)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/2/23/Probe_Death0.ogg/revision/latest?cb=20211026192403"},
+        {"text":"(Probe - annoyed / pissed)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/1/1e/Probe_Pissed0.ogg/revision/latest?cb=20211026192403"},
+        {"text":"(Probe - annoyed 2)","unit":"Probe","probe":true,"audioUrl":"https://static.wikia.nocookie.net/starcraft/images/b/ba/Probe_Pissed1.ogg/revision/latest?cb=20211026192404"},
+        {"text":"An omen?","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/2/21/ZVO_ProtossOracle_ProtossFlyingCaster_011.ogg/revision/latest?cb=20211021144728"},
+        {"text":"Our window is short.","unit":"Oracle","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/4/4a/ZVO_ProtossOracle_ProtossFlyingCaster_012.ogg/revision/latest?cb=20211021144730"},
+        {"text":"Cold is the Void...","unit":"Stalker","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/9/90/Stalker_What00.ogg/revision/latest?cb=20211021141908"},
+        {"text":"Fear is an illusion...","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/1/17/DarkTemplar_What01.ogg/revision/latest?cb=20211013150436"},
+        {"text":"The darkness writhes.","unit":"Dark Templar","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/0/0c/DarkTemplar_What02.ogg/revision/latest?cb=20211013145627"},
+        {"text":"We cannot hold!","unit":"Zealot","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/5/56/Zealot_Help00.ogg/revision/latest?cb=20211026184128"},
+        {"text":"Channel the light of Aiur!","unit":"Void Ray","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/2/24/VoidRay_What04.ogg/revision/latest?cb=20211022182644"},
+        {"text":"The enemy closes.","unit":"Immortal","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/3/30/Immortal_Help00.ogg/revision/latest?cb=20211021130840"},
+        {"text":"We are in peril!","unit":"Carrier","audioUrl":"https://static.wikia.nocookie.net/starcraft/images/6/68/Carrier_Help00.ogg/revision/latest?cb=20211013142114"}
+      ]
+    }
+  ]
+};
+
+let currentAudio = null;
+let currentCard = null;
+let mode = 'all';
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-all').classList.toggle('active', m === 'all');
+  document.getElementById('btn-probe').classList.toggle('active', m === 'probe');
+  document.querySelectorAll('.card').forEach(card => {
+    if (m === 'probe') {
+      card.classList.toggle('hidden', !card.dataset.probe);
+    } else {
+      card.classList.remove('hidden');
+    }
+  });
+}
+
+function play(url, card) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (currentCard) { currentCard.classList.remove('playing','error'); }
+
+  const status = card.querySelector('.status');
+  card.classList.add('playing');
+  currentCard = card;
+  status.textContent = 'Loading...';
+
+  const audio = new Audio(url);
+  currentAudio = audio;
+
+  audio.oncanplaythrough = () => { status.textContent = 'Playing...'; };
+  audio.onended = () => { card.classList.remove('playing'); status.textContent = ''; currentAudio = null; };
+  audio.onerror = () => {
+    card.classList.remove('playing');
+    card.classList.add('error');
+    status.textContent = 'Wiki blocked direct play - needs local proxy';
+  };
+  audio.play().catch(() => {
+    card.classList.remove('playing');
+    card.classList.add('error');
+    status.textContent = 'Blocked - needs local proxy';
+  });
+}
+
+const app = document.getElementById('app');
+for (const hook of data.hooks) {
+  const section = document.createElement('div');
+  section.className = 'hook-section';
+  section.innerHTML = `<h2 class="hook-title">${hook.name}</h2><p class="hook-desc">${hook.theme}</p>`;
+
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+
+  for (const rec of hook.recommendations) {
+    const card = document.createElement('div');
+    card.className = 'card' + (rec.probe ? ' probe-only' : '');
+    if (rec.probe) card.dataset.probe = 'true';
+    card.innerHTML = `
+      <div class="quote">"${rec.text}"</div>
+      <span class="unit">${rec.unit}</span>${rec.probe ? '<span class="badge">PROBE MODE</span>' : ''}
+      <div class="status"></div>
+    `;
+    card.onclick = () => play(rec.audioUrl, card);
+    grid.appendChild(card);
+  }
+
+  section.appendChild(grid);
+  app.appendChild(section);
+}
+</script>
+</body>
+</html>
