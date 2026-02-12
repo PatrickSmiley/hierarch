@@ -20,6 +20,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Note: StarCraft II audio files are property of Blizzard Entertainment and are
-not included in this repository. They are downloaded directly from the
-StarCraft Wiki by the user during installation.
+---
+
+THIRD-PARTY CONTENT NOTICE
+
+This license applies ONLY to the scripts, configuration files, and
+documentation in this repository. It does NOT apply to any audio content.
+
+StarCraft II, including all audio, voice lines, character names, unit names,
+and related game assets, is the intellectual property of Blizzard
+Entertainment, Inc., a subsidiary of Activision Blizzard King (Microsoft).
+StarCraft and Protoss are trademarks or registered trademarks of Blizzard
+Entertainment, Inc.
+
+No audio files are included in this repository. Audio is downloaded by the
+end user from the StarCraft Wiki (https://starcraft.fandom.com/) during
+installation, subject to Fandom's Terms of Use and Blizzard's EULA.
+
+This is an unofficial fan project. It is not affiliated with, endorsed by,
+or sponsored by Blizzard Entertainment, Activision Blizzard, or Microsoft.

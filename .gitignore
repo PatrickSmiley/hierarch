@@ -1,4 +1,3 @@
-*.mp3
-*.ogg
 node_modules/
 .DS_Store
+.claude/PRIVATE.md

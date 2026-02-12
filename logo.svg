@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Pylon crystal shape - Protoss colors -->
+  <defs>
+    <linearGradient id="crystal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0088cc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003366;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Dark background circle -->
+  <circle cx="100" cy="100" r="96" fill="#0a0a1a" stroke="#0066aa" stroke-width="2" />
+  <!-- Outer glow ring -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#00aaff" stroke-width="1" opacity="0.3" />
+  <!-- Pylon diamond shape -->
+  <polygon points="100,22 145,100 100,178 55,100" fill="url(#crystal)" filter="url(#glow)" opacity="0.9" />
+  <!-- Inner energy lines -->
+  <line x1="100" y1="38" x2="100" y2="162" stroke="#88eeff" stroke-width="1.5" opacity="0.6" />
+  <line x1="68" y1="100" x2="132" y2="100" stroke="#88eeff" stroke-width="1.5" opacity="0.6" />
+  <!-- Center eye / energy core -->
+  <ellipse cx="100" cy="100" rx="18" ry="12" fill="#00eeff" opacity="0.8" filter="url(#glow)" />
+  <ellipse cx="100" cy="100" rx="8" ry="5" fill="#ffffff" opacity="0.9" />
+  <!-- Small accent crystals -->
+  <polygon points="100,30 108,52 100,48 92,52" fill="#44ddff" opacity="0.7" />
+  <polygon points="100,170 108,148 100,152 92,148" fill="#44ddff" opacity="0.7" />
+</svg>

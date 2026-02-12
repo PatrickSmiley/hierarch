@@ -21,6 +21,19 @@ This changelog tracks **hook configuration and sound curation changes**:
 
 ---
 
+### [1.0.1] - 2026-02-09
+
+#### Added
+- SVG pylon logo
+- Full credits: Boris Cherny, rubenflamshepherd, Delba Oliveira, StarCraft Wiki
+- Expanded legal section with Blizzard/Activision/Microsoft IP notice
+- Fandom and Blizzard EULA links
+
+#### Removed
+- ROADMAP.md
+
+---
+
 ### [1.0.0] - 2026-02-08
 
 #### Added
